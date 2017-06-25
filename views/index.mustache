@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Word Guess</title>
+    <link rel="stylesheet" href="/main.css">
+  </head>
+  <body>
+    <form action="/index" method="post">
+
+      {{#errors}}
+      <p>{{.}}</p>
+      {{/errors}}
+
+      <p class="guess">Guess the letters in the word below:</p>
+      <p class="word">{{dashedWords}}</p>
+      <label for="letters">Enter your guess here:</label>
+      <input type="text" name="letters" value="" placeholder=" ">
+      <button class="submitbutton" type="submit">Submit</button>
+
+      <p class="wrongLetters">Wrong guesses:{{wrongLetters}}</p>
+
+      <p class="lostgame">{{gameOver}}</p>
+  </form>
+  </body>
+</html>
