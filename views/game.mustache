@@ -6,12 +6,6 @@
     <link rel="stylesheet" href="/main.css">
   </head>
   <body>
-    <form action="/game" method="post">
-
-      {{#errors}}
-      <p>{{.}}</p>
-      {{/errors}}
-
       <p class="guess">Guess the letters in the word below:</p>
       <p class="word">{{dashedWords}}</p>
       <label for="letters">Enter your guess here:</label>
