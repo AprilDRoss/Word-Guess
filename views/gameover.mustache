@@ -5,8 +5,14 @@
     <title>GameOver Page</title>
   </head>
   <body>
+
+    <h1>Your word was:{{word}}.</h1>
+
     {{#loser}}
     <h1 class="loser">{{.}}</h1>
     {{/loser}}
+
+    <h1 class="playagain"><a href="/index">Play Again</a></h1>
+
   </body>
 </html>

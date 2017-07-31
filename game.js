@@ -15,7 +15,7 @@ const words = fs.readFileSync("/usr/share/dict/words", "utf-8").toLowerCase().sp
 app.use(bodyParser.urlencoded({extended: false}));
 //body parser json
 app.use(bodyParser.json());
-//Validator has to go rigt after body parser
+//Validator has to go right after body parser
 app.use(expressValidator());
 //allow app to see the contents of the public folder
 app.use(express.static("public"));
@@ -32,33 +32,29 @@ app.use(session({
 }));
 
 
-//var randomIndex = Math.floor(Math.random() * words.length);
-//var randomWord = words[randomIndex];
+var randomIndex = Math.floor(Math.random() * words.length);
+var word = words[randomIndex];
 
-var randomWord = "apples";
-var randomWord_letter = randomWord.split("");
+//var word = "atom";
+var randomWord = word.split("");
 //console.log(randomWord);
-console.log(randomWord_letter);
+
 
 //game data
- var attempts = 8;
- var dashedWords = {};
- var wrongLetters = [];
- var gameOver = {msg: "You lose.Play again."};
- var new_dashes = "";
+let points = 0;
+ let attempts = 8;
+ let dashedWord = [];
+ let userGuesses = [];
+ let wrongLetters = [];
+ let gameOver = {msg: "You lose.Play again."};
 
 
-var dashes = "";
-for(var i =0; i < randomWord.length; i++){
-  if (randomWord.charAt(i) == " ") {
-   dashes += " ";
- } else {
-   dashes += "-";
- }
-}
+ randomWord.forEach(function(newUnderscore){
+   dashedWord.push("_");
+ });
 
  app.get("/gameover", function(req, res){
-   res.render("gameover",{loser:gameOver.msg});
+   res.render("gameover",{loser:gameOver.msg, word:word});
  });
 
  app.get("/winner", function(req, res){
@@ -69,41 +65,50 @@ let messages = [];
 // if (attempts > 0) {
 app.post("/", function(req,res){
 
-    req.checkBody("userletter", "Please enter one letter at a time").isLength({max: 1});
-    req.checkBody("userletter", "Please enter a letter.").notEmpty();
-    req.checkBody("userletter", "Please enter letters only").isAlpha();
+  let letter = req.body.userguess.toLowerCase();
+  let userletter = randomWord.indexOf(letter);
+
+
+    req.checkBody("userguess", "Please enter one letter at a time").isLength({max: 1});
+    req.checkBody("userguess", "Please enter a letter.").notEmpty();
+    req.checkBody("userguess", "Please enter letters only").isAlpha();
 
     let errors = req.validationErrors();
-    console.log(errors);
 
         if (errors){
          errors.forEach(function (error){  //loop thru each entry
          messages.push(error.msg);         //display error message in the array
         });
-      //res.render("index",{errors:messages, dashedWords:dashes});
+        res.redirect("/");
+
+      }
+
+      if(userletter !== -1){
+        for (var i = 0; i < randomWord.length; i++){
+          if(randomWord[i] === letter && userGuesses.indexOf(letter)=== -1){
+            dashedWord[i] = randomWord[i];
+            points++;
+            userGuesses.push(letter);
+          }
+          }
         } else {
-            //userletter = req.body.userletter;
-            console.log(req.body.userletter);
+             wrongLetters.push(letter);
+             attempts = attempts - 1;
+           }
 
-              for (var j = 0; j < randomWord_letter.length; j++){
-                   randomWord_letter = randomWord_letter[j];
 
-                if(randomWord_letter!== req.body.userletter){
-                  wrongLetters.push(req.body.userletter);
-                  attempts = attempts - 1;
-                  //res.render("game", {word:dashes, wrongLetters:userLetters});
 
-                } else if (randomWord_letter === req.body.userletter){
-                   dashes[j] = req.body.userletter;
-                   console.log(dashes);
-                   //res.render("game",{newword:new_dashes});
-                 } else {}
-               }
-             }
-});
+         if (attempts === 0) {
+            res.redirect("/gameover");
+          } else if (points === randomWord.length){
+            res.redirect("/winner");
+          }
+
+          res.redirect("/");
+      });
 
 app.get("/", function(req, res){
-  res.render("index",{dashedWords:dashes, wrongLetters:wrongLetters, errors:messages, attempts:attempts});
+  res.render("index",{dashedWords:dashedWord, wrongLetters:wrongLetters, correctLetters:userGuesses, errors:messages, attempts:attempts});
 });
 
 app.listen(3000, function (){
